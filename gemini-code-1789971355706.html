@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>জঙ্গলে বাঘের তাড়া - এডভান্সড গেম! 🐅🏃</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      text-align: center;
+      margin: 0;
+      padding: 15px;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    #dialogue-screen {
+      background: rgba(255, 255, 255, 0.95);
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      color: #2d3436;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding: 10px;
+    }
+
+    .dialogue-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 82%;
+      font-size: 14px;
+      line-height: 1.4;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      opacity: 0;
+      animation: slideIn 0.5s forwards ease-out;
+    }
+
+    .from-left {
+      align-self: flex-start;
+      background: #e17055;
+      color: white;
+      border-bottom-left-radius: 4px;
+      transform: translateX(-100px);
+    }
+
+    .from-right {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+      background: #0984e3;
+      color: white;
+      border-bottom-right-radius: 4px;
+      transform: translateX(100px);
+    }
+
+    .avatar-preview {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      flex-shrink: 0;
+    }
+
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    #game-screen {
+      display: none;
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 460px;
+      background: linear-gradient(to bottom, #2e7d32, #1b5e20);
+      margin: 10px auto;
+      border-radius: 15px;
+      border: 5px solid #4ea852;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    #level-title {
+      font-size: 20px;
+      color: #ffeaa7;
+      margin-bottom: 5px;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    /* রেস চলাকালীন পপ-আপ ডায়ালগ বক্স */
+    #live-dialogue-box {
+      height: 35px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #ffeaa7;
+      background: rgba(0,0,0,0.5);
+      border-radius: 20px;
+      padding: 5px 15px;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    .tiger {
+      position: absolute;
+      left: -60px;
+      width: 60px;
+      height: 100%;
+      font-size: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+      transition: left 0.1s linear;
+    }
+
+    .track {
+      position: absolute;
+      width: 100%;
+      height: 100px;
+      border-bottom: 3px dashed rgba(255, 255, 255, 0.4);
+    }
+    #track1 { top: 15px; }
+    #track2 { top: 125px; }
+    #track3 { top: 235px; }
+    #track4 { top: 345px; }
+
+    .runner {
+      position: absolute;
+      left: 70px;
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+      background-size: cover;
+      background-position: center;
+      transition: left 0.1s linear;
+      z-index: 5;
+    }
+
+    .runner-name {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .safe-zone {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background: rgba(255, 215, 0, 0.3);
+      border-left: 4px dashed #ffd700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      writing-mode: vertical-rl;
+      text-shadow: 1px 1px 3px #000;
+    }
+
+    .obstacle { position: absolute; font-size: 25px; z-index: 4; }
+
+    .btn-panel {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 12px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #ff7675;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px #d63031;
+    }
+
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px #d63031; }
+
+    #run-btn {
+      background: #00b894;
+      box-shadow: 0 5px #008867;
+      font-size: 20px;
+      padding: 15px 35px;
+    }
+
+    #boost-btn {
+      background: #fdcb6e;
+      color: #2d3436;
+      box-shadow: 0 5px #e17055;
+      font-size: 20px;
+      padding: 15px 30px;
+    }
+
+    #next-lvl-btn { display: none; background: #a29bfe; color: #fff; }
+  </style>
+</head>
+<body>
+
+  <h1>🐅 সুন্দরবনে বাঘের তাড়া! 🏃‍♂️</h1>
+  <div id="level-title">লেভেল ১: সুন্দরবন 🌴</div>
+
+  <!-- ডায়ালগ স্ক্রিন -->
+  <div id="dialogue-screen">
+    <h3>জঙ্গলে বিপদের মুখে ডায়ালগ! 😱</h3>
+    <div class="chat-container">
+      <div class="dialogue-card from-left" style="animation-delay: 0.2s;">
+        <img id="img-bobby-1" class="avatar-preview" alt="Bobby">
+        <div><strong>ববি:</strong> ভাইরে ভাই! গর্জন কিসের?! 😨</div>
+      </div>
+      <div class="dialogue-card from-right" style="animation-delay: 0.7s;">
+        <img id="img-robin-1" class="avatar-preview" alt="Robin">
+        <div><strong>রবিন:</strong> বাঘ আসছে রে! পালাও সবাই! 🐅🏃‍♂️</div>
+      </div>
+      <div class="dialogue-card from-left" style="animation-delay: 1.2s; background: #6c5ce7;">
+        <img id="img-ishrat-1" class="avatar-preview" alt="Ishrat">
+        <div><strong>ইশরাত:</strong> আমাকে পেছনে ফেলে যেও না! 😭</div>
+      </div>
+      <div class="dialogue-card from-left" style="animation-delay: 1.7s; background: #00b894;">
+        <img id="img-tonmoy-1" class="avatar-preview" alt="Tonmoy">
+        <div><strong>তনময়:</strong> স্যুট পরে কি দৌড়ানো যায়?! 👔🏃‍♂️</div>
+      </div>
+      <div class="dialogue-card from-left" style="animation-delay: 2.2s;">
+        <img id="img-bobby-2" class="avatar-preview" alt="Bobby">
+        <div><strong>ববি:</strong> চিন্তা না করে দ্রুত দৌড়াও! ⚡</div>
+      </div>
+    </div>
+    <button class="btn" onclick="startRace()">প্রাণ বাঁচাতে দৌড়াও! 🏃‍♂️</button>
+  </div>
+
+  <!-- জঙ্গল গেম স্ক্রিন -->
+  <div id="game-screen">
+    <div id="tiger-group" class="tiger">
+      <span>🐅</span><span>🐅</span><span>🐅</span><span>🐅</span>
+    </div>
+
+    <div class="safe-zone">নিরাপদ স্থান 🏰</div>
+    <div id="obstacles-container"></div>
+
+    <div class="track" id="track1"></div>
+    <div id="bobby" class="runner" style="top:20px;"><span class="runner-name">১. ববি</span></div>
+
+    <div class="track" id="track2"></div>
+    <div id="robin" class="runner" style="top:130px;"><span class="runner-name">২. রবিন (তুমি)</span></div>
+
+    <div class="track" id="track3"></div>
+    <div id="ishrat" class="runner" style="top:240px;"><span class="runner-name">৩. ইশরাত</span></div>
+
+    <div class="track" id="track4"></div>
+    <div id="tonmoy" class="runner" style="top:350px;"><span class="runner-name">৪. তনময়</span></div>
+  </div>
+
+  <!-- গেম চলাকালীন লাইভ ডায়ালগ -->
+  <div id="live-dialogue-box" style="display:none;">গেম শুরু হতে যাচ্ছে...</div>
+
+  <!-- কন্ট্রোল বাটন -->
+  <div class="btn-panel" id="control-panel" style="display:none;">
+    <button id="run-btn" class="btn">ধরে রাখো = দৌড়াবে 🏃‍♂️ (Hold Space)</button>
+    <button id="boost-btn" class="btn">⚡ 2X বুস্ট (Hold Shift)</button>
+  </div>
+  <button id="next-lvl-btn" class="btn" onclick="nextLevel()">পরবর্তী লেভেলে যাও! ➡️</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    const imgBobby = "WhatsApp Image 2026-09-21 at 10.55.52 AM (1).jpeg";
+    const imgRobin = "WhatsApp Image 2026-09-21 at 10.55.52 AM.jpeg";
+    const imgIshrat = "Esrat .jpeg";
+    const imgTonmoy = "WhatsApp Image 2026-09-21 at 11.39.11 AM.jpeg";
+
+    document.getElementById('img-bobby-1').src = imgBobby;
+    document.getElementById('img-bobby-2').src = imgBobby;
+    document.getElementById('img-robin-1').src = imgRobin;
+    document.getElementById('img-ishrat-1').src = imgIshrat;
+    document.getElementById('img-tonmoy-1').src = imgTonmoy;
+
+    document.getElementById('bobby').style.backgroundImage = `url('${imgBobby}')`;
+    document.getElementById('robin').style.backgroundImage = `url('${imgRobin}')`;
+    document.getElementById('ishrat').style.backgroundImage = `url('${imgIshrat}')`;
+    document.getElementById('tonmoy').style.backgroundImage = `url('${imgTonmoy}')`;
+
+    let currentLevel = 1;
+    let rPos = 70, bPos = 70, iPos = 70, tPos = 70;
+    let tigerPos = -60;
+    let timer, dialogueTimer;
+    let gameOver = false;
+    let tigerSpeed = 2.2;
+    let isRunning = false;
+    let isBoosting = false;
+
+    // রানিং ফানি ডায়ালগ সংগ্রহ
+    const randomDialogues = [
+      "💬 রবিন: বাঘ মনে হয় বিরিয়ানির গন্ধ পাইছে! 😂",
+      "💬 ববি: আমার খালি পায়ের স্পিড কিন্তু অস্থির! ⚡",
+      "💬 ইশরাত: তনময় ভাই, তোমার কোটের বোতাম খুলে দৌড়াও! 👔",
+      "💬 তনময়: স্যুট পরেই চ্যাম্পিয়ন হব আজকে! 😎",
+      "💬 বাঘ: থাম তোরা! তোদের ছবি তুলবো! 🐅",
+      "💬 রবিন: পেছনে তাকাবি না কেউ! খালি সামনের দিকে তাকা! 🏃‍♂️",
+      "💬 ইশরাত: বাঘটা এত দ্রুত আসতেছে কেন রে ভাই?! 😱",
+      "💬 ববি: আয় বাঘ! দেখি তোর কত স্পিড! 💪",
+      "💬 তনময়: আমার টাই বাতাসের সাথে উড়তেছে! 💨",
+      "💬 রবিন: 2X বুস্ট মারো! জীবন বাঁচাও! ⚡"
+    ];
+
+    function setupLevel(lvl) {
+      rPos = 70; bPos = 70; iPos = 70; tPos = 70; tigerPos = -60;
+      gameOver = false;
+      document.getElementById('result').innerHTML = "";
+      document.getElementById('next-lvl-btn').style.display = 'none';
+
+      document.getElementById('bobby').style.left = bPos + 'px';
+      document.getElementById('robin').style.left = rPos + 'px';
+      document.getElementById('ishrat').style.left = iPos + 'px';
+      document.getElementById('tonmoy').style.left = tPos + 'px';
+      document.getElementById('tiger-group').style.left = tigerPos + 'px';
+
+      const obsContainer = document.getElementById('obstacles-container');
+      obsContainer.innerHTML = "";
+
+      if (lvl === 1) {
+        document.getElementById('level-title').innerText = "লেভেল ১: সুন্দরবন 🌴";
+        tigerSpeed = 2.2;
+      } else if (lvl === 2) {
+        document.getElementById('level-title').innerText = "লেভেল ২: আমাজন জঙ্গল 🌿";
+        tigerSpeed = 2.8;
+        obsContainer.innerHTML = `<div class="obstacle" style="left:350px; top:150px;">🪨</div>`;
+      } else if (lvl === 3) {
+        document.getElementById('level-title').innerText = "লেভেল ৩: আফ্রিকার মেগা জঙ্গল 🌋";
+        tigerSpeed = 3.5;
+        obsContainer.innerHTML = `<div class="obstacle" style="left:250px; top:150px;">🪨</div><div class="obstacle" style="left:500px; top:150px;">🪵</div>`;
+      }
+    }
+
+    function startRace() {
+      document.getElementById('dialogue-screen').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'block';
+      document.getElementById('control-panel').style.display = 'flex';
+      document.getElementById('live-dialogue-box').style.display = 'inline-block';
+
+      setupLevel(currentLevel);
+
+      // প্রতি ২ সেকেন্ড পর পর র‍্যান্ডম ডায়ালগ দেখাবে
+      dialogueTimer = setInterval(() => {
+        if (!gameOver) {
+          const rand = Math.floor(Math.random() * randomDialogues.length);
+          document.getElementById('live-dialogue-box').innerText = randomDialogues[rand];
+        }
+      }, 2000);
+
+      // মূল গেম লুপ
+      timer = setInterval(() => {
+        if (gameOver) return;
+
+        // প্লেয়ারের দৌড়ানোর লজিক (মাউস/কী ধরে রাখলে)
+        if (isRunning) {
+          rPos += isBoosting ? 6.5 : 3.5;
+          document.getElementById('robin').style.left = rPos + 'px';
+        }
+
+        // বাকি প্লেয়ারদের র‍্যান্ডম স্পিড
+        bPos += Math.random() * (2.8 + currentLevel * 0.3) + 1.2;
+        iPos += Math.random() * (3.0 + currentLevel * 0.3) + 1.2;
+        tPos += Math.random() * (2.9 + currentLevel * 0.3) + 1.2;
+
+        tigerPos += tigerSpeed;
+
+        document.getElementById('bobby').style.left = bPos + 'px';
+        document.getElementById('ishrat').style.left = iPos + 'px';
+        document.getElementById('tonmoy').style.left = tPos + 'px';
+        document.getElementById('tiger-group').style.left = tigerPos + 'px';
+
+        checkWinner();
+      }, 50);
+    }
+
+    // মাউস এবং টাচ কন্ট্রোল (Hold Event)
+    const runBtn = document.getElementById('run-btn');
+    const boostBtn = document.getElementById('boost-btn');
+
+    runBtn.addEventListener('mousedown', () => isRunning = true);
+    runBtn.addEventListener('mouseup', () => isRunning = false);
+    runBtn.addEventListener('touchstart', (e) => { e.preventDefault(); isRunning = true; });
+    runBtn.addEventListener('touchend', () => isRunning = false);
+
+    boostBtn.addEventListener('mousedown', () => { isRunning = true; isBoosting = true; });
+    boostBtn.addEventListener('mouseup', () => { isRunning = false; isBoosting = false; });
+    boostBtn.addEventListener('touchstart', (e) => { e.preventDefault(); isRunning = true; isBoosting = true; });
+    boostBtn.addEventListener('touchend', () => { isRunning = false; isBoosting = false; });
+
+    // কিবোর্ড কন্ট্রোল (Space & Shift Key Hold)
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') isRunning = true;
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { isRunning = true; isBoosting = true; }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') isRunning = false;
+      if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { isBoosting = false; }
+    });
+
+    function checkWinner() {
+      const finish = 700;
+
+      if (rPos >= finish && !gameOver) {
+        if (currentLevel < 3) {
+          showWinner(`🎉 **রবিন লেভেল ${currentLevel} পার করেছে!** <br> 💬 রবিন: *'পরবর্তী লেভেলে ২X স্পিড নিয়ে রেডি!'* 🏆`, true);
+        } else {
+          showWinner("🏆 🎉 **রবিন সমস্ত লেভেল পার করে অলটিমেট চ্যাম্পিয়ন হয়েছে!** 👑", false);
+        }
+      } else if (bPos >= finish && !gameOver) {
+        showWinner(`🎉 **ববি লেভেল ${currentLevel}-এ বিজয়ী!** <br> 💬 ববি: *'জুতো ছাড়াই বাঘকে পেছনে ফেললাম!'* 🏆`, true);
+      } else if (iPos >= finish && !gameOver) {
+        showWinner(`🎉 **ইশরাত লেভেল ${currentLevel}-এ বিজয়ী!** <br> 💬 ইশরাত: *'আমিই বিজয়ী!'* 🏆`, true);
+      } else if (tPos >= finish && !gameOver) {
+        showWinner(`🎉 **তনময় লেভেল ${currentLevel}-এ বিজয়ী!** <br> 💬 তনময়: *'স্যুট পরেই সেরাদের সেরা!'* 🏆`, true);
+      }
+    }
+
+    function showWinner(msg, hasNext) {
+      gameOver = true;
+      clearInterval(timer);
+      clearInterval(dialogueTimer);
+      document.getElementById('result').innerHTML = msg;
+      document.getElementById('control-panel').style.display = 'none';
+
+      if (hasNext) {
+        document.getElementById('next-lvl-btn').style.display = 'inline-block';
+      }
+    }
+
+    function nextLevel() {
+      if (currentLevel < 3) {
+        currentLevel++;
+        document.getElementById('next-lvl-btn').style.display = 'none';
+        document.getElementById('control-panel').style.display = 'flex';
+        setupLevel(currentLevel);
+        
+        gameOver = false;
+        dialogueTimer = setInterval(() => {
+          if (!gameOver) {
+            const rand = Math.floor(Math.random() * randomDialogues.length);
+            document.getElementById('live-dialogue-box').innerText = randomDialogues[rand];
+          }
+        }, 2000);
+
+        timer = setInterval(() => {
+          if (gameOver) return;
+
+          if (isRunning) {
+            rPos += isBoosting ? 6.5 : 3.5;
+            document.getElementById('robin').style.left = rPos + 'px';
+          }
+
+          bPos += Math.random() * (2.8 + currentLevel * 0.3) + 1.2;
+          iPos += Math.random() * (3.0 + currentLevel * 0.3) + 1.2;
+          tPos += Math.random() * (2.9 + currentLevel * 0.3) + 1.2;
+
+          tigerPos += tigerSpeed;
+
+          document.getElementById('bobby').style.left = bPos + 'px';
+          document.getElementById('ishrat').style.left = iPos + 'px';
+          document.getElementById('tonmoy').style.left = tPos + 'px';
+          document.getElementById('tiger-group').style.left = tigerPos + 'px';
+
+          checkWinner();
+        }, 50);
+      }
+    }
+  </script>
+</body>
+</html>
