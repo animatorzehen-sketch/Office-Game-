@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>আলটিমেট গেম হাব - ৪টি আলাদা এডভান্সড গেম! 🎮</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      text-align: center;
+      margin: 0;
+      padding: 15px;
+      color: #ffffff;
+      user-select: none;
+    }
+
+    /* প্রথম স্ক্রিন */
+    .home-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      max-width: 950px;
+      margin: 10px auto;
+      flex-wrap: wrap;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 180px;
+    }
+
+    .game-mode-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      padding: 15px 10px;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .game-mode-card:hover {
+      transform: translateY(-5px) scale(1.05);
+      background: #ff7675;
+      border-color: #ffeaa7;
+    }
+
+    .game-mode-card h4 { margin: 5px 0 0 0; font-size: 15px; }
+    .game-mode-card .icon { font-size: 35px; }
+
+    #dialogue-screen {
+      background: rgba(255, 255, 255, 0.95);
+      width: 420px;
+      padding: 15px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      color: #2d3436;
+      flex-shrink: 0;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 350px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+
+    .dialogue-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      max-width: 85%;
+      font-size: 13px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      opacity: 0;
+      animation: slideIn 0.5s forwards ease-out;
+    }
+
+    .from-left { align-self: flex-start; background: #e17055; color: white; transform: translateX(-80px); }
+    .from-right { align-self: flex-end; flex-direction: row-reverse; background: #0984e3; color: white; transform: translateX(80px); }
+    .avatar-preview { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
+
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+    /* আলটিমেট জঙ্গল গেম স্ক্রিন */
+    #game-screen {
+      display: none;
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 480px;
+      background: radial-gradient(circle at center, #1e3a29, #0a1f12);
+      margin: 10px auto;
+      border-radius: 15px;
+      border: 5px solid #2ed573;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(46, 213, 115, 0.4);
+    }
+
+    .hud-panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      z-index: 20;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 15px;
+      border-radius: 20px;
+    }
+
+    .tiger {
+      position: absolute;
+      left: -60px;
+      width: 60px;
+      height: 100%;
+      font-size: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+      transition: left 0.1s linear;
+    }
+
+    .track {
+      position: absolute;
+      width: 100%;
+      height: 100px;
+      border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+    #track1 { top: 40px; }
+    #track2 { top: 140px; }
+    #track3 { top: 240px; }
+    #track4 { top: 340px; }
+
+    .runner {
+      position: absolute;
+      left: 70px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+      background-size: cover;
+      background-position: center;
+      transition: left 0.1s linear;
+      z-index: 5;
+    }
+
+    .runner-name {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .safe-zone {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background: rgba(255, 215, 0, 0.2);
+      border-left: 4px dashed #ffd700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      writing-mode: vertical-rl;
+      color: #ffd700;
+    }
+
+    .item { position: absolute; font-size: 24px; z-index: 4; animation: pulse 1s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
+
+    .btn-panel { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+    .btn {
+      padding: 12px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #ff7675;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px #d63031;
+    }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px #d63031; }
+
+    #run-btn { background: #2ed573; box-shadow: 0 5px #26af5f; }
+    #boost-btn { background: #ffa502; box-shadow: 0 5px #e17055; }
+
+    /* অন্যান্য গেমের ক্যানভাস জোন */
+    #arcade-game-zone {
+      display: none;
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      background: #1e293b;
+      margin: 10px auto;
+      border-radius: 15px;
+      border: 4px solid #38bdf8;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 ৪টি এডভান্সড গেম আলটিমেট হাব 🎮</h1>
+
+  <!-- প্রথম স্ক্রিন -->
+  <div class="home-wrapper" id="home-wrapper">
+    
+    <div class="side-panel">
+      <div class="game-mode-card" onclick="startArcadeGame('boat')">
+        <div class="icon">🚣‍♂️</div>
+        <h4>নদীতে নৌকা রেস</h4>
+      </div>
+      <div class="game-mode-card" onclick="startArcadeGame('car')">
+        <div class="icon">🏎️</div>
+        <h4>কার রেসিং গেম</h4>
+      </div>
+    </div>
+
+    <!-- মাঝখানের ডায়ালগ বক্স -->
+    <div id="dialogue-screen">
+      <h3>জঙ্গলে বাঘের তাড়া! (Ultra Edition) 🐅</h3>
+      <div class="chat-container">
+        <div class="dialogue-card from-left" style="animation-delay: 0.2s;">
+          <img id="img-bobby-1" class="avatar-preview" alt="Bobby">
+          <div><strong>ববি:</strong> ভাইরে ভাই! গর্জন কিসের?! 😨</div>
+        </div>
+        <div class="dialogue-card from-right" style="animation-delay: 0.6s;">
+          <img id="img-robin-1" class="avatar-preview" alt="Robin">
+          <div><strong>রবিন:</strong> বাঘ আসছে রে! পালাও সবাই! 🐅🏃‍♂️</div>
+        </div>
+        <div class="dialogue-card from-left" style="animation-delay: 1.0s; background: #6c5ce7;">
+          <img id="img-ishrat-1" class="avatar-preview" alt="Ishrat">
+          <div><strong>ইশরাত:</strong> আমাকে পেছনে ফেলে যেও না! 😭</div>
+        </div>
+        <div class="dialogue-card from-left" style="animation-delay: 1.4s; background: #00b894;">
+          <img id="img-tonmoy-1" class="avatar-preview" alt="Tonmoy">
+          <div><strong>তনময়:</strong> স্যুট পরে কি দৌড়ানো যায়?! 👔🏃‍♂️</div>
+        </div>
+      </div>
+      <br>
+      <button class="btn" onclick="startRace()">গেম শুরু করো! 🐅</button>
+    </div>
+
+    <div class="side-panel">
+      <div class="game-mode-card" onclick="startArcadeGame('bike')">
+        <div class="icon">🏍️</div>
+        <h4>বাইক রেসিং গেম</h4>
+      </div>
+      <div class="game-mode-card" onclick="startArcadeGame('fight')">
+        <div class="icon">🥊</div>
+        <h4>মারামারির গেম</h4>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="level-title" style="display:none; font-size:20px; color:#ffeaa7;">লেভেল ১: আলটিমেট সুন্দরবন 🌴</div>
+
+  <!-- আলটিমেট জঙ্গল গেম স্ক্রিন -->
+  <div id="game-screen">
+    <div class="hud-panel">
+      <span>🪙 কয়েন: <span id="coin-count">0</span></span>
+      <span>🛡️ শিল্ড: <span id="shield-status">নাই</span></span>
+      <span>⚡ স্পিড: <span id="speed-status">1X</span></span>
+    </div>
+
+    <div id="tiger-group" class="tiger">
+      <span>🐅</span><span>🐅</span><span>🐅</span>
+    </div>
+
+    <div class="safe-zone">নিরাপদ স্থান 🏰</div>
+    <div id="items-container"></div>
+
+    <div class="track" id="track1"></div>
+    <div id="bobby" class="runner" style="top:55px;"><span class="runner-name">১. ববি</span></div>
+
+    <div class="track" id="track2"></div>
+    <div id="robin" class="runner" style="top:155px;"><span class="runner-name">২. রবিন (তুমি)</span></div>
+
+    <div class="track" id="track3"></div>
+    <div id="ishrat" class="runner" style="top:255px;"><span class="runner-name">৩. ইশরাত</span></div>
+
+    <div class="track" id="track4"></div>
+    <div id="tonmoy" class="runner" style="top:355px;"><span class="runner-name">৪. তনময়</span></div>
+  </div>
+
+  <!-- অন্যান্য আর্কেড গেম জোন -->
+  <div id="arcade-game-zone">
+    <h2 id="arcade-title" style="margin-top:20px;"></h2>
+    <div id="arcade-content" style="font-size:60px; margin-top:50px;"></div>
+    <p id="arcade-desc" style="font-size:18px; color:#cbd5e1;"></p>
+    <button class="btn" style="margin-top:40px;" onclick="backToHome()">প্রধান মেনুতে ফেরো 🔙</button>
+  </div>
+
+  <!-- গেম কন্ট্রোল -->
+  <div class="btn-panel" id="control-panel" style="display:none;">
+    <button id="run-btn" class="btn">ধরে রাখো = দৌড়াবে 🏃‍♂️ (Space)</button>
+    <button id="boost-btn" class="btn">⚡ 2X বুস্ট (Hold Shift)</button>
+  </div>
+  <button id="next-lvl-btn" class="btn" style="display:none;" onclick="nextLevel()">পরবর্তী লেভেলে যাও! ➡️</button>
+
+  <h2 id="result"></h2>
+
+  <script>
+    // Imgur থেকে পাওয়া আপডেট করা পিকচার লিংক
+    const imgBobby = "https://i.imgur.com/2jniVGY.jpg";
+    const imgRobin = "https://i.imgur.com/2jniVGY.jpg";
+    const imgIshrat = "https://i.imgur.com/2jniVGY.jpg";
+    const imgTonmoy = "https://i.imgur.com/2jniVGY.jpg";
+
+    document.getElementById('img-bobby-1').src = imgBobby;
+    document.getElementById('img-robin-1').src = imgRobin;
+    document.getElementById('img-ishrat-1').src = imgIshrat;
+    document.getElementById('img-tonmoy-1').src = imgTonmoy;
+
+    document.getElementById('bobby').style.backgroundImage = `url('${imgBobby}')`;
+    document.getElementById('robin').style.backgroundImage = `url('${imgRobin}')`;
+    document.getElementById('ishrat').style.backgroundImage = `url('${imgIshrat}')`;
+    document.getElementById('tonmoy').style.backgroundImage = `url('${imgTonmoy}')`;
+
+    let currentLevel = 1;
+    let rPos = 70, bPos = 70, iPos = 70, tPos = 70;
+    let tigerPos = -60;
+    let timer;
+    let gameOver = false;
+    let tigerSpeed = 2.4;
+    let isRunning = false;
+    let isBoosting = false;
+    let coins = 0;
+
+    function startRace() {
+      document.getElementById('home-wrapper').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'block';
+      document.getElementById('level-title').style.display = 'block';
+      document.getElementById('control-panel').style.display = 'flex';
+
+      setupLevel(currentLevel);
+
+      timer = setInterval(() => {
+        if (gameOver) return;
+
+        if (isRunning) {
+          rPos += isBoosting ? 7 : 3.8;
+          document.getElementById('robin').style.left = rPos + 'px';
+        }
+
+        bPos += Math.random() * (3.0 + currentLevel * 0.3) + 1.2;
+        iPos += Math.random() * (3.1 + currentLevel * 0.3) + 1.2;
+        tPos += Math.random() * (2.9 + currentLevel * 0.3) + 1.2;
+
+        tigerPos += tigerSpeed;
+
+        document.getElementById('bobby').style.left = bPos + 'px';
+        document.getElementById('ishrat').style.left = iPos + 'px';
+        document.getElementById('tonmoy').style.left = tPos + 'px';
+        document.getElementById('tiger-group').style.left = tigerPos + 'px';
+
+        checkWinner();
+      }, 50);
+    }
+
+    function setupLevel(lvl) {
+      rPos = 70; bPos = 70; iPos = 70; tPos = 70; tigerPos = -60;
+      gameOver = false;
+      document.getElementById('result').innerHTML = "";
+      
+      document.getElementById('bobby').style.left = bPos + 'px';
+      document.getElementById('robin').style.left = rPos + 'px';
+      document.getElementById('ishrat').style.left = iPos + 'px';
+      document.getElementById('tonmoy').style.left = tPos + 'px';
+      document.getElementById('tiger-group').style.left = tigerPos + 'px';
+
+      const itemsContainer = document.getElementById('items-container');
+      itemsContainer.innerHTML = `
+        <div class="item" style="left:200px; top:170px;">🪙</div>
+        <div class="item" style="left:400px; top:170px;">🛡️</div>
+        <div class="item" style="left:550px; top:170px;">🪙</div>
+      `;
+    }
+
+    function startArcadeGame(type) {
+      document.getElementById('home-wrapper').style.display = 'none';
+      document.getElementById('arcade-game-zone').style.display = 'block';
+
+      if (type === 'boat') {
+        document.getElementById('arcade-title').innerText = "🚣‍♂️ নদীতে নৌকা রেস";
+        document.getElementById('arcade-content').innerText = "🌊 🚣‍♂️ 🌊";
+        document.getElementById('arcade-desc').innerText = "নৌকা চালিয়ে নদীর স্রোত ও বাধা অতিক্রম করার এডভান্সড মোড!";
+      } else if (type === 'car') {
+        document.getElementById('arcade-title').innerText = "🏎️ কার রেসিং গেম";
+        document.getElementById('arcade-content').innerText = "🏎️ 💨 🏁";
+        document.getElementById('arcade-desc').innerText = "হাই স্পিডে কার ড্রাইভ করুন এবং পয়েন্ট অর্জন করুন!";
+      } else if (type === 'bike') {
+        document.getElementById('arcade-title').innerText = "🏍️ বাইক রেসিং গেম";
+        document.getElementById('arcade-content').innerText = "🏍️ 💨 🚧";
+        document.getElementById('arcade-desc').innerText = "স্টান্ট করে বাইক রেসে চ্যাম্পিয়ন হন!";
+      } else if (type === 'fight') {
+        document.getElementById('arcade-title').innerText = "🥊 মারামারির গেম";
+        document.getElementById('arcade-content').innerText = "🥷 🆚 🧌";
+        document.getElementById('arcade-desc').innerText = "শত্রুদের সাথে মারামারি করে ম্যাচ জিতুন!";
+      }
+    }
+
+    function backToHome() {
+      document.getElementById('arcade-game-zone').style.display = 'none';
+      document.getElementById('game-screen').style.display = 'none';
+      document.getElementById('home-wrapper').style.display = 'flex';
+    }
+
+    const runBtn = document.getElementById('run-btn');
+    const boostBtn = document.getElementById('boost-btn');
+
+    runBtn.addEventListener('mousedown', () => isRunning = true);
+    runBtn.addEventListener('mouseup', () => isRunning = false);
+    boostBtn.addEventListener('mousedown', () => { isRunning = true; isBoosting = true; document.getElementById('speed-status').innerText = '2X'; });
+    boostBtn.addEventListener('mouseup', () => { isRunning = false; isBoosting = false; document.getElementById('speed-status').innerText = '1X'; });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') isRunning = true;
+      if (e.code === 'ShiftLeft') { isRunning = true; isBoosting = true; document.getElementById('speed-status').innerText = '2X'; }
+    });
+    window.addEventListener('keyup', (e) => {
+      if (e.code === 'Space') isRunning = false;
+      if (e.code === 'ShiftLeft') { isBoosting = false; document.getElementById('speed-status').innerText = '1X'; }
+    });
+
+    function checkWinner() {
+      if (rPos >= 700 && !gameOver) {
+        gameOver = true;
+        clearInterval(timer);
+        document.getElementById('result').innerHTML = "🏆 🎉 **রবিন আলটিমেট রেস জয় করেছে!** 👑";
+      }
+    }
+  </script>
+</body>
+</html>
